@@ -90,7 +90,7 @@ export default function Header() {
         </div>
 
         {/* Mobile Menu */}
-        <div className={`md:hidden overflow-hidden transition-all duration-500 ${
+        {/* <div className={`md:hidden overflow-hidden transition-all duration-500 ${
           isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}>
           <div className="bg-white/95 backdrop-blur-md border-t border-gray-200/50 px-6 py-4 space-y-2">
@@ -121,7 +121,7 @@ export default function Header() {
               </Link>
             </div>
           </div>
-        </div>
+        </div> */}
       </header>
 
       {/* Spacer for fixed header */}

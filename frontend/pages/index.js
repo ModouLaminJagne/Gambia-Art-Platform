@@ -4,26 +4,44 @@ import Link from 'next/link';
 
 export default function Home() {
   const [artworks, setArtworks] = useState([]);
+  const [artists, setArtists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [featuredArtwork, setFeaturedArtwork] = useState(null);
 
   useEffect(() => {
-    fetchArtworks();
+    fetchData();
   }, []);
 
-  const fetchArtworks = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/artworks');
-      setArtworks(response.data);
-      if (response.data.length > 0) {
-        setFeaturedArtwork(response.data[0]);
-      }
-    } catch (error) {
-      console.error('Error fetching artworks:', error);
-    } finally {
-      setLoading(false);
+  // Single function that fetches both artworks and artists.
+const fetchData = async () => {
+  try {
+    setLoading(true);
+    
+    // Fetch both artworks and artists simultaneously
+    const [artworksResponse, artistsResponse] = await Promise.all([
+      axios.get('http://localhost:5000/api/artworks'),
+      axios.get('http://localhost:5000/api/artists')
+    ]);
+
+    // Set artworks
+    setArtworks(artworksResponse.data);
+    if (artworksResponse.data.length > 0) {
+      setFeaturedArtwork(artworksResponse.data[0]);
     }
-  };
+
+    // Set artists (assuming you have setArtists state)
+    setArtists(artistsResponse.data);
+
+    console.log(`✅ Loaded ${artworksResponse.data.length} artworks and ${artistsResponse.data.length} artists`);
+    
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    // You might want to set error states here
+    setError('Failed to load data. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen">
@@ -45,16 +63,15 @@ export default function Home() {
               </span>
             </div>
             
-            <h1 className="hero-title animate-slide-up">
-              Discover the Soul of 
-              <br />
+            <h1 className="hero-title animate-slide-up text-4xl font-bold text-gray-900 mb-4">
+              Discover the Soul of Gambian Art
               <span className="relative inline-block">
-                Gambian Art
-                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-gold rounded-full animate-pulse"></div>
+                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-gold rounded-full animate-pulse">
+                </div>
               </span>
             </h1>
             
-            <p className="hero-subtitle animate-slide-up">
+            <p className="hero-subtitle animate-slide-up text-gray-600 text-lg mb-6">
               Where tradition meets creativity. Explore breathtaking artworks from talented Gambian artists 
               and immerse yourself in the rich cultural tapestry of West Africa.
             </p>
@@ -95,7 +112,7 @@ export default function Home() {
             <div className="group">
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 transform group-hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
                 <div className="text-4xl mb-4">👨‍🎨</div>
-                <h3 className="text-3xl font-bold text-gambian-blue mb-2">50+</h3>
+                <h3 className="text-3xl font-bold text-gambian-blue mb-2">{artists.length}+</h3>
                 <p className="text-gray-600 font-medium">Talented Artists</p>
               </div>
             </div>
@@ -134,7 +151,7 @@ export default function Home() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                     <div className="badge-featured">
-                      ⭐ Featured
+                      ⭐ Featured Artwork
                     </div>
                   </div>
                   <div className="p-8 md:p-12 flex flex-col justify-center">
