@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-// import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 
 export default function ArtistRegistration({ onRegistrationSuccess }) {
   const [formData, setFormData] = useState({

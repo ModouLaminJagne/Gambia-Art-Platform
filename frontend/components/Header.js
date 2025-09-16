@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+// import { Button } from "@/components/ui/button"
+
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -16,21 +18,18 @@ export default function Header() {
 
   return (
     <>
-      <header className={`header-main fixed w-full top-0 z-50 transition-all duration-500 ${
+      <header className={`header-main fixed justify-center w-full top-0 z-50 transition-all duration-500 ${
         isScrolled ? 'shadow-2xl bg-white/95' : 'bg-white/80'
       }`}>
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
+        <div className="container justify-center mx-auto px-6 py-4">
+          <div className="flex justify-center items-center">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="relative">
-                <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-lg">
-                  <span className="text-white font-bold text-xl">🎨</span>
-                </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-gold rounded-full animate-pulse"></div>
+              <div className="relative justify-center items-center w-10 h-10 rounded-lg bg-gradient-primary text-white flex text-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                🎨
               </div>
               <div>
-                <h1 className="logo-text text-2xl md:text-3xl">
+                <h1 className="logo-text align-middle justify-center text-2xl md:text-3xl">
                   Gambian Art
                 </h1>
                 <p className="text-xs text-gray-500 font-medium tracking-widest uppercase">
