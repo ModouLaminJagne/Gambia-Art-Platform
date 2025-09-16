@@ -5,8 +5,7 @@ const nextConfig = {
     domains: ['localhost'],
   },
   basePath: '/Gambia-Art-Platform',
-  assetPrefix: '/Gambia-Art-Platform/',
-  target: 'serverless',
+  assetPrefix: '/Gambia-Art-Platform/'
 }
 
 module.exports = nextConfig;

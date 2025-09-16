@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+// import { Button } from "@/components/ui/button"
 
 export default function ArtistRegistration({ onRegistrationSuccess }) {
   const [formData, setFormData] = useState({
@@ -282,7 +283,7 @@ export default function ArtistRegistration({ onRegistrationSuccess }) {
               </span>
             )}
           </button>
-
+            
           {/* Additional Info */}
           <div className="text-center pt-4">
             <p className="text-sm text-gray-500">
