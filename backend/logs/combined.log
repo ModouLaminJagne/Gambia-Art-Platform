@@ -112,3 +112,5 @@
 {"ip":"::1","level":"info","message":"Incoming request","method":"GET","service":"gambian-art-api","timestamp":"2025-09-21 02:42:23","url":"/api/artists","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"}
 {"duration":"8ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"gambian-art-api","statusCode":304,"timestamp":"2025-09-21 02:42:23","url":"/"}
 {"duration":"9ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"gambian-art-api","statusCode":304,"timestamp":"2025-09-21 02:42:23","url":"/"}
+{"level":"info","message":"Server running on port 5000 in development mode","service":"gambian-art-api","timestamp":"2025-09-21 03:21:32"}
+{"level":"info","message":"Connected to MongoDB","service":"gambian-art-api","timestamp":"2025-09-21 03:21:32"}

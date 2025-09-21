@@ -16,27 +16,27 @@ router.post('/upload',
   async (req, res) => {
     try {
       const { title, description, copiesAvailable, tags } = req.body;
-      
-      if (!req.file) {
+
+    if (!req.file) {
         return res.status(400).json({ 
           error: 'Artwork image is required',
           code: 'IMAGE_REQUIRED'
         });
-      }
+    }
 
       // Parse tags if provided
       const artworkTags = tags ? tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
 
-      const artwork = new Artwork({
+    const artwork = new Artwork({
         artistId: req.user._id,
-        title,
-        description,
-        image: req.file.filename,
+      title,
+      description,
+      image: req.file.filename,
         copiesAvailable: parseInt(copiesAvailable),
         tags: artworkTags
-      });
+    });
 
-      await artwork.save();
+    await artwork.save();
       
       // Populate artist data for response
       await artwork.populate('artistId', 'name surname profilePhoto');
@@ -47,11 +47,11 @@ router.post('/upload',
         title: artwork.title
       });
 
-      res.status(201).json({ 
-        message: 'Artwork uploaded successfully', 
-        artwork 
-      });
-    } catch (error) {
+    res.status(201).json({ 
+      message: 'Artwork uploaded successfully', 
+      artwork 
+    });
+  } catch (error) {
       logger.error('Error uploading artwork', { 
         error: error.message, 
         stack: error.stack,
