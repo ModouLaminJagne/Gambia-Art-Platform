@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import ModernHeader from '../components/ModernHeader';
+import ModernHero from '../components/ModernHero';
+import ModernGallery from '../components/ModernGallery';
+import ModernFooter from '../components/ModernFooter';
 
 export default function Home() {
   const [artworks, setArtworks] = useState([]);
   const [artists, setArtists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [featuredArtwork, setFeaturedArtwork] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -23,20 +28,25 @@ const fetchData = async () => {
       axios.get('http://localhost:5000/api/artists')
     ]);
 
-    // Set artworks
-    setArtworks(artworksResponse.data);
-    if (artworksResponse.data.length > 0) {
-      setFeaturedArtwork(artworksResponse.data[0]);
+    // Handle new API response structure for artworks
+    const artworksData = artworksResponse.data.artworks || artworksResponse.data;
+    setArtworks(Array.isArray(artworksData) ? artworksData : []);
+    
+    if (Array.isArray(artworksData) && artworksData.length > 0) {
+      setFeaturedArtwork(artworksData[0]);
     }
 
-    // Set artists (assuming you have setArtists state)
-    setArtists(artistsResponse.data);
+    // Handle new API response structure for artists
+    const artistsData = artistsResponse.data.artists || artistsResponse.data;
+    setArtists(Array.isArray(artistsData) ? artistsData : []);
 
-    console.log(`✅ Loaded ${artworksResponse.data.length} artworks and ${artistsResponse.data.length} artists`);
+    console.log(`✅ Loaded ${artworksData.length} artworks and ${artistsData.length} artists`);
     
   } catch (error) {
     console.error('Error fetching data:', error);
-    // You might want to set error states here
+    // Set empty arrays on error to prevent crashes
+    setArtworks([]);
+    setArtists([]);
     setError('Failed to load data. Please try again.');
   } finally {
     setLoading(false);
@@ -45,87 +55,9 @@ const fetchData = async () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="hero-section relative overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-primary rounded-full opacity-10 float"></div>
-          <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-secondary rounded-full opacity-10 float-delayed"></div>
-          <div className="absolute bottom-20 left-1/3 w-20 h-20 bg-gradient-accent rounded-full opacity-10 float"></div>
-        </div>
+      <ModernHeader />
+      <ModernHero artworks={artworks} artists={artists} />
 
-        <div className="container mx-auto text-center relative z-10">
-          <div className="animate-fade-in">
-            <div className="mb-6">
-              <span className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-sm font-semibold text-gray-700 mb-6">
-                <span className="animate-pulse mr-2">🌟</span>
-                Celebrating Gambian Heritage Through Art
-              </span>
-            </div>
-            
-            <h1 className="hero-title animate-slide-up text-4xl font-bold text-gray-900 mb-4">
-              Discover the Soul of Gambian Art
-              <span className="relative inline-block">
-                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-gold rounded-full animate-pulse">
-                </div>
-              </span>
-            </h1>
-            
-            <p className="hero-subtitle animate-slide-up text-gray-600 text-lg mb-6">
-              Where tradition meets creativity. Explore breathtaking artworks from talented Gambian artists 
-              and immerse yourself in the rich cultural tapestry of West Africa.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-scale-in">
-              <Link href="/register" className="btn-primary text-lg px-10 py-4">
-                <span className="flex items-center space-x-3">
-                  <span>🎨</span>
-                  <span>Join as Artist</span>
-                  <span className="animate-bounce">→</span>
-                </span>
-              </Link>
-              <Link href="#gallery" className="btn-outline text-lg px-10 py-4">
-                <span className="flex items-center space-x-3">
-                  <span>🖼️</span>
-                  <span>Explore Gallery</span>
-                </span>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Decorative Elements */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white via-white/50 to-transparent"></div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 bg-white relative">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div className="group">
-              <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-8 transform group-hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                <div className="text-4xl mb-4">🎨</div>
-                <h3 className="text-3xl font-bold text-gambian-red mb-2">{artworks.length}+</h3>
-                <p className="text-gray-600 font-medium">Unique Artworks</p>
-              </div>
-            </div>
-            <div className="group">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 transform group-hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                <div className="text-4xl mb-4">👨‍🎨</div>
-                <h3 className="text-3xl font-bold text-gambian-blue mb-2">{artists.length}+</h3>
-                <p className="text-gray-600 font-medium">Talented Artists</p>
-              </div>
-            </div>
-            <div className="group">
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 transform group-hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
-                <div className="text-4xl mb-4">🌍</div>
-                <h3 className="text-3xl font-bold text-gambian-green mb-2">Global</h3>
-                <p className="text-gray-600 font-medium">Reach & Impact</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Featured Artwork */}
       {featuredArtwork && (
@@ -194,116 +126,7 @@ const fetchData = async () => {
         </section>
       )}
 
-      {/* Gallery Section */}
-      <section id="gallery" className="py-20 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold text-gradient-secondary mb-4">
-              Art Gallery
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Immerse yourself in a curated collection of extraordinary artworks that tell the story of Gambia's rich cultural heritage
-            </p>
-          </div>
-          
-          {loading ? (
-            <div className="gallery-grid">
-              {[...Array(6)].map((_, index) => (
-                <div key={index} className="card animate-pulse">
-                  <div className="skeleton w-full h-64 mb-4"></div>
-                  <div className="skeleton h-6 mb-2"></div>
-                  <div className="skeleton h-4 mb-4"></div>
-                  <div className="flex justify-between">
-                    <div className="skeleton h-4 w-24"></div>
-                    <div className="skeleton h-4 w-20"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : artworks.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="text-8xl mb-6">🎨</div>
-              <h3 className="text-3xl font-bold text-gray-400 mb-4">No Artworks Yet</h3>
-              <p className="text-lg text-gray-500 mb-8 max-w-md mx-auto">
-                Be the first to showcase your beautiful Gambian artwork on our platform!
-              </p>
-              <Link href="/register" className="btn-primary">
-                <span className="flex items-center space-x-2">
-                  <span>✨</span>
-                  <span>Upload First Artwork</span>
-                </span>
-              </Link>
-            </div>
-          ) : (
-            <div className="gallery-grid">
-              {artworks.slice(0, 6).map((artwork, index) => (
-                <div
-                  key={artwork._id}
-                  className="card-artwork group animate-fade-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="relative overflow-hidden">
-                    <img
-                      src={`http://localhost:5000/uploads/artworks/${artwork.image}`}
-                      alt={artwork.title}
-                      className="artwork-image"
-                    />
-                    <div className="artwork-overlay">
-                      <div className="text-white">
-                        <p className="font-bold text-lg mb-1">{artwork.title}</p>
-                        <p className="text-sm opacity-90">Click to learn more</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold mb-2 text-gray-900 group-hover:text-gambian-red transition-colors duration-300">
-                      {artwork.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
-                      {artwork.description}
-                    </p>
-                    
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center text-white text-sm font-bold">
-                          {artwork.artistId?.name?.charAt(0) || '🎨'}
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-700">
-                            {artwork.artistId?.name} {artwork.artistId?.surname}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="text-right">
-                        <div className="flex items-center space-x-2">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
-                            <span className="w-2 h-2 bg-green-400 rounded-full mr-1 animate-pulse"></span>
-                            {artwork.copiesAvailable} available
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {artworks.length > 6 && (
-            <div className="text-center mt-12">
-              <Link href="/dashboard" className="btn-secondary">
-                <span className="flex items-center space-x-2">
-                  <span>🎯</span>
-                  <span>View All Artworks</span>
-                  <span className="animate-bounce">→</span>
-                </span>
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
+      <ModernGallery artworks={artworks} loading={loading} error={error} />
 
       {/* Call to Action Section */}
       <section className="py-20 bg-gradient-to-br from-gambian-red via-warm-orange to-gambian-blue relative overflow-hidden">
@@ -346,58 +169,7 @@ const fetchData = async () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="md:col-span-2">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center">
-                  <span className="text-white font-bold">🎨</span>
-                </div>
-                <h3 className="text-2xl font-bold text-gradient-primary">Gambian Art Platform</h3>
-              </div>
-              <p className="text-gray-400 leading-relaxed mb-4">
-                Celebrating and preserving Gambian artistic heritage through a digital platform 
-                that connects artists with art lovers worldwide.
-              </p>
-              <div className="flex space-x-4">
-                <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gradient-primary transition-all duration-300 cursor-pointer">
-                  <span>📘</span>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gradient-primary transition-all duration-300 cursor-pointer">
-                  <span>📷</span>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gradient-primary transition-all duration-300 cursor-pointer">
-                  <span>🐦</span>
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="text-lg font-bold mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/" className="hover:text-white transition-colors duration-300">Home</Link></li>
-                <li><Link href="/register" className="hover:text-white transition-colors duration-300">Join Artists</Link></li>
-                <li><Link href="/dashboard" className="hover:text-white transition-colors duration-300">Dashboard</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-lg font-bold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors duration-300">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-300">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors duration-300">Privacy Policy</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 pt-8 mt-8 text-center text-gray-500">
-            <p>&copy; 2024 Gambian Art Platform. Made with ❤️ for Gambian artists and culture.</p>
-          </div>
-        </div>
-      </footer>
+      <ModernFooter />
     </div>
   );
 }

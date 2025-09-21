@@ -23,10 +23,13 @@ export default function Dashboard() {
       try {
         const artistData = JSON.parse(storedArtist);
         setArtist(artistData);
-        fetchArtworks(artistData.id || artistData._id);
+        if (artistData.id || artistData._id) {
+          fetchArtworks(artistData.id || artistData._id);
+        }
       } catch (error) {
         console.error('Error parsing stored artist:', error);
         localStorage.removeItem('currentArtist');
+        localStorage.removeItem('authToken');
       }
     }
   }, []);
@@ -36,14 +39,36 @@ export default function Dashboard() {
     setLoading(true);
     
     try {
-      const response = await axios.get(`http://localhost:5000/api/artists/by-email/${email}`);
-      const artistData = response.data;
-      setArtist(artistData);
-      localStorage.setItem('currentArtist', JSON.stringify(artistData));
-      fetchArtworks(artistData._id);
+      // Check if user has a valid token
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        // Try to get profile with token
+        const response = await axios.get('http://localhost:5000/api/artists/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const artistData = response.data.artist;
+        setArtist(artistData);
+        localStorage.setItem('currentArtist', JSON.stringify(artistData));
+        fetchArtworks(artistData._id);
+      } else {
+        // Fallback to email lookup for backward compatibility
+        const response = await axios.get(`http://localhost:5000/api/artists/by-email/${email}`);
+        const artistData = response.data;
+        setArtist(artistData);
+        localStorage.setItem('currentArtist', JSON.stringify(artistData));
+        fetchArtworks(artistData._id);
+      }
     } catch (error) {
-      alert('Artist not found. Please register first or check your email.');
-      router.push('/register');
+      if (error.response?.status === 401) {
+        // Token expired or invalid, clear storage
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('currentArtist');
+        alert('Session expired. Please log in again.');
+        router.push('/login');
+      } else {
+        alert('Artist not found. Please register first or check your email.');
+        router.push('/register');
+      }
     } finally {
       setLoading(false);
     }
@@ -52,34 +77,46 @@ export default function Dashboard() {
   const fetchArtworks = async (artistId) => {
     try {
       const response = await axios.get(`http://localhost:5000/api/artworks/artist/${artistId}`);
-      const artworkData = response.data;
-      setArtworks(artworkData);
+      
+      // Handle new API response structure
+      const artworkData = response.data.artworks || response.data;
+      const artworksArray = Array.isArray(artworkData) ? artworkData : [];
+      setArtworks(artworksArray);
       
       // Calculate stats
-      const totalCopies = artworkData.reduce((sum, artwork) => sum + artwork.copiesAvailable, 0);
+      const totalCopies = artworksArray.reduce((sum, artwork) => sum + (artwork.copiesAvailable || 0), 0);
       setStats({
-        totalArtworks: artworkData.length,
+        totalArtworks: artworksArray.length,
         totalViews: Math.floor(Math.random() * 1000) + 100, // Mock data
         availableCopies: totalCopies
       });
     } catch (error) {
       console.error('Error fetching artworks:', error);
+      // Set empty array on error to prevent crashes
+      setArtworks([]);
+      setStats({
+        totalArtworks: 0,
+        totalViews: 0,
+        availableCopies: 0
+      });
     }
   };
 
   const handleUploadSuccess = (newArtwork) => {
-    setArtworks([newArtwork, ...artworks]);
+    const currentArtworks = Array.isArray(artworks) ? artworks : [];
+    setArtworks([newArtwork, ...currentArtworks]);
     setShowUploadForm(false);
     // Update stats
     setStats(prev => ({
       ...prev,
       totalArtworks: prev.totalArtworks + 1,
-      availableCopies: prev.availableCopies + newArtwork.copiesAvailable
+      availableCopies: prev.availableCopies + (newArtwork.copiesAvailable || 0)
     }));
   };
 
   const handleLogout = () => {
     localStorage.removeItem('currentArtist');
+    localStorage.removeItem('authToken');
     setArtist(null);
     setArtworks([]);
     setEmail('');
@@ -290,14 +327,14 @@ export default function Dashboard() {
               <p className="text-lg text-gray-600">Manage and showcase your creative masterpieces</p>
             </div>
             
-            {artworks.length > 0 && (
+            {Array.isArray(artworks) && artworks.length > 0 && (
               <div className="text-sm text-gray-500">
                 Showing {artworks.length} artwork{artworks.length !== 1 ? 's' : ''}
               </div>
             )}
           </div>
           
-          {artworks.length === 0 ? (
+          {!Array.isArray(artworks) || artworks.length === 0 ? (
             <div className="card text-center py-16">
               <div className="max-w-md mx-auto">
                 <div className="w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -321,7 +358,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {artworks.map((artwork, index) => (
+              {Array.isArray(artworks) && artworks.map((artwork, index) => (
                 <div
                   key={artwork._id}
                   className="card-artwork group animate-fade-in"

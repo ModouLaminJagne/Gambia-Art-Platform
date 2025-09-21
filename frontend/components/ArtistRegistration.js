@@ -7,6 +7,8 @@ export default function ArtistRegistration({ onRegistrationSuccess }) {
     name: '',
     surname: '',
     email: '',
+    password: '',
+    confirmPassword: '',
     address: '',
   });
   const [profilePhoto, setProfilePhoto] = useState(null);
@@ -47,6 +49,10 @@ export default function ArtistRegistration({ onRegistrationSuccess }) {
     if (!formData.surname.trim()) newErrors.surname = 'Surname is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.password) newErrors.password = 'Password is required';
+    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+    if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
+    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
     if (!formData.address.trim()) newErrors.address = 'Address is required';
     
     setErrors(newErrors);
@@ -76,9 +82,15 @@ export default function ArtistRegistration({ onRegistrationSuccess }) {
       });
 
       setMessage('🎉 Registration successful! Welcome to our community!');
-      setFormData({ name: '', surname: '', email: '', address: '' });
+      setFormData({ name: '', surname: '', email: '', password: '', confirmPassword: '', address: '' });
       setProfilePhoto(null);
       setProfilePhotoPreview(null);
+      
+      // Store token and user data
+      if (response.data.token) {
+        localStorage.setItem('authToken', response.data.token);
+        localStorage.setItem('currentArtist', JSON.stringify(response.data.artist));
+      }
       
       if (onRegistrationSuccess) {
         setTimeout(() => {
@@ -223,6 +235,42 @@ export default function ArtistRegistration({ onRegistrationSuccess }) {
               required
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+          </div>
+
+          {/* Password */}
+          <div className="space-y-2">
+            <label className="form-label flex items-center space-x-2">
+              <span>🔒</span>
+              <span>Password *</span>
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              className={`form-input ${errors.password ? 'border-red-500 focus:ring-red-500' : ''}`}
+              placeholder="Enter a secure password"
+              required
+            />
+            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+          </div>
+
+          {/* Confirm Password */}
+          <div className="space-y-2">
+            <label className="form-label flex items-center space-x-2">
+              <span>🔒</span>
+              <span>Confirm Password *</span>
+            </label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              className={`form-input ${errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : ''}`}
+              placeholder="Confirm your password"
+              required
+            />
+            {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
           </div>
 
           {/* Address */}

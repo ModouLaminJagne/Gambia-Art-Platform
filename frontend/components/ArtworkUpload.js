@@ -95,15 +95,22 @@ export default function ArtworkUpload({ artistId, onUploadSuccess }) {
     setMessage('');
 
     try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Authentication required. Please log in again.');
+      }
+
       const submitData = new FormData();
-      submitData.append('artistId', artistId);
       Object.keys(formData).forEach(key => {
         submitData.append(key, formData[key]);
       });
       submitData.append('artworkImage', artworkImage);
 
       const response = await axios.post('http://localhost:5000/api/artworks/upload', submitData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        },
       });
 
       setMessage('🎉 Artwork uploaded successfully! Your masterpiece is now live!');
